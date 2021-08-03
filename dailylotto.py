@@ -3,6 +3,7 @@
 import time
 import json
 import requests
+from random_ua import rand_user_agent
 from twtxt import twilio_text
 
 def request_json(game):
@@ -11,21 +12,20 @@ def request_json(game):
 	   If my computer can't connect and send anything out,
 	   I can still use the links provided in previous messages.'''
 	url = f'https://nylottery.ny.gov/nyl-api/games/{game}/draws'
-	headers = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '\
-	'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4215.0 Safari/537.36 Edg/86.0.597.0'}
+	headers = {'User-agent': rand_user_agent()}
 	for _ in range(10):
 		try:
 			res = requests.get(url, headers=headers, timeout=60)
 			res.raise_for_status()
 			break
-		except requests.HTTPError:
+		except requests.HTTPError as e:
 			print(f"{_}...")
+			print(f"status code: {res.status_code}")
 			time.sleep(.5)
+			err = str(e)
 			continue
 	else:
-		raise Exception("Request failed. "\
-		f"Click the link for the latest {game.title()} results:\n\n"\
-		f"https://nylottery.ny.gov/draw-game?game={game}.\n")
+		raise Exception(f"Request failed for {game.title()}.\n{err}")
 	return json.loads(res.text)['data']['draws'][1]
 
 def result_check(draw_data):

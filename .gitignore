@@ -2,3 +2,5 @@ __pycache__/
 lottotest.py
 newDrawTimes.py
 send_email.py
+*.csv
+draw_time.py
