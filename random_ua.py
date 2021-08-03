@@ -2,10 +2,11 @@
 '''Module for randomly selecting user agent data
    for request headers from a json file'''
 import json
+from os import environ
 from random import choice
 
 def rand_user_agent():
-	with open('user_agents.json') as f:
+	with open(f"{environ['HOME']}/dailylotto/user_agents.json") as f:
 		list_ua = json.load(f)
 	return choice(list_ua)
 
