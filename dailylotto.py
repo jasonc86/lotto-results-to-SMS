@@ -20,8 +20,7 @@ def request_json(game):
 			break
 		except requests.HTTPError as e:
 			print(f"{_}...")
-			print(f"status code: {res.status_code}")
-			time.sleep(.5)
+			time.sleep(30)
 			err = str(e)
 			continue
 	else:
