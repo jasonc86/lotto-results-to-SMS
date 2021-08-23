@@ -19,7 +19,11 @@ def request_json(game):
 			res.raise_for_status()
 			break
 		except requests.HTTPError as e:
+<<<<<<< HEAD
 			print(f"{_}")
+=======
+			print(f"{_}...")
+>>>>>>> f77b41301463ce886d445ce7fe620b439fb119ed
 			time.sleep(30)
 			err = str(e)
 			continue
