@@ -1,12 +1,11 @@
 #!/usr/bin/python3
-'''Module for texting myself the NY lottery numbers and Win 4 game results'''
+'''Module for retrieving the NY lottery numbers and Win 4 game results'''
 import time
 import json
 import requests
 from random_ua import rand_user_agent
-from twtxt import twilio_text
 
-def request_json(game):
+def request_json(game, request_interval):
 	'''Request for JSON data. Request is made ten times in case of temporary connection issues.
 	   After the tenth request, the program just sends a link to the NY lottery website.
 	   If my computer can't connect and send anything out,
@@ -19,12 +18,8 @@ def request_json(game):
 			res.raise_for_status()
 			break
 		except requests.HTTPError as e:
-<<<<<<< HEAD
-			print(f"{_}")
-=======
 			print(f"{_}...")
->>>>>>> f77b41301463ce886d445ce7fe620b439fb119ed
-			time.sleep(30)
+			time.sleep(request_interval)
 			err = str(e)
 			continue
 	else:
@@ -47,32 +42,32 @@ def json_to_str(draw_data, game):
 		game.title(), result_date, numbers)
 	return "{0[0]} {0[1]} ({0[2]}): {0[3]}".format(results_info)
 
-def timestamp():
+def timestamp(game):
 	'''Adds a timestamp at the end of the message with a link to the results 
 	to double check.'''
-	url = "https://nylottery.ny.gov/draw-game?game="
-	games = ['numbers', 'win4']
+	url = f"https://nylottery.ny.gov/draw-game?game={game}"
 	ts = time.strftime('%-I:%M%p')
-	return "Retrieved at {0} from\n{1}{2[0]}\n{1}{2[1]}.".format(ts, url, games)
+	return f"Retrieved at {ts} from\n{url}."
 
-def main():
-	'''Checks to see if results are ready for each game or if there's a request error
-	   and sends a message.'''
+def result_string():
+	'''Checks to see if results are ready for each game and prints a message.'''
 	msg = ''
-	for game in ['numbers', 'win4']:
+	games = ('numbers', 'win4')
+	for game in games:
 		while True:
 			try:
-				draw_data = request_json(game)
+				draw_data = request_json(game, 30)
 			except Exception as e:
-				msg += str(e) + '\n'
+				msg += str(e) + '\n'*2
 				break
 			if result_check(draw_data):
-				msg += json_to_str(draw_data, game) + '\n'
+				msg += json_to_str(draw_data, game) + f'\n{timestamp(game)}' + '\n'*2
 				break
 			print(f"Results not ready for {game}")
-	msg += f"\n{timestamp()}"
-	print(msg)
-	twilio_text(msg)
+	return msg.rstrip('\n')
+
+def main():
+	print(f"{result_string()}")
 
 if __name__ == '__main__':
 	main()
