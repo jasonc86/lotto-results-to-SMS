@@ -4,7 +4,7 @@ from dailylotto import *
 from twtxt import twilio_text
 
 def main():
-	msg = result_string()
+	msg = format_sms()
 	print(msg)
 	twilio_text(msg)
 
