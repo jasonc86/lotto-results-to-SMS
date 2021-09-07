@@ -4,7 +4,11 @@ from dailylotto import *
 from twtxt import twilio_text
 
 def main():
-	msg = format_sms()
+	'''Uses twilio to send lotto information.
+	This was separated from dailylotto.py so I could test changes to that file
+	without sending text messages.'''
+	games = {'numbers':False, 'win4':False}
+	msg = format_sms(games)
 	print(msg)
 	twilio_text(msg)
 

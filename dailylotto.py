@@ -39,20 +39,20 @@ def json_to_str(draw_data):
 		draw_data['gameName'].title(), result_date, numbers, timestamp)
 	return "{0[0]} {0[1]} ({0[2]}): {0[3]}\n{0[4]}".format(results_info)
 
-def format_sms():
-	'''Records results data in dictionary so I can see when the results release for each game.'''
-	msgs = {'numbers':False, 'win4':False}
-	while not all([v for v in msgs.values()]):
-		for game in msgs.keys():
+def format_sms(games):
+	'''Records draw data for each game and combines it into one string to send via SMS.'''
+	while not all([v for v in games.values()]):
+		for game in games.keys():
 			draw_data = result_check(game) 
-			if draw_data and not msgs[game]:
-				msgs[game] = json_to_str(draw_data)
+			if draw_data and not games[game]:
+				games[game] = json_to_str(draw_data)
 				continue
 			time.sleep(30)
-	return '\n\n'.join([v for v in msgs.values()])
+	return '\n\n'.join([v for v in games.values()])
 
 def main():
-	print(format_sms())
+	games = {'numbers':False, 'win4':False}
+	print(format_sms(games))
 
 if __name__ == '__main__':
 	main()
