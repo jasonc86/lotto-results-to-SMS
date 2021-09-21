@@ -3,6 +3,7 @@
 import time
 import json
 import requests
+import sys
 from random_ua import rand_user_agent
 
 def request_json(game):
@@ -25,11 +26,16 @@ def result_check(game):
 		draw_data = json.loads(json_data)['data']['draws'][1]
 		if draw_data.get('results', ''):
 			return draw_data
+	else:
+		return False
 
 def json_to_str(draw_data):
 	'''Converts JSON data to string and formats it for readability.
 	   See included JSON files to see how the desired data is structured.'''
-	results = draw_data.get('results', '')
+	try:
+		results = draw_data.get('results', '')
+	except AttributeError:
+		return False
 	draw_period = {1: "Midday", 2: "Evening"}
 	numbers = ''.join(results[0]['primary'])
 	result_date = time.strftime("%x", time.localtime((draw_data['resultDate']/1000)))
@@ -39,20 +45,27 @@ def json_to_str(draw_data):
 		draw_data['gameName'].title(), result_date, numbers, timestamp)
 	return "{0[0]} {0[1]} ({0[2]}): {0[3]}\n{0[4]}".format(results_info)
 
-def format_sms(games):
-	'''Records draw data for each game and combines it into one string to send via SMS.'''
+def format_sms(games, interval, timeout):
+	'''Records draw data for each game to send via SMS.'''
+	start = time.time()
 	while not all([v for v in games.values()]):
 		for game in games.keys():
-			draw_data = result_check(game) 
+			draw_data = result_check(game)
 			if draw_data and not games[game]:
 				games[game] = json_to_str(draw_data)
-				continue
-			time.sleep(30)
-	return '\n\n'.join([v for v in games.values()])
+			else:
+				time.sleep(interval)
+		if time.time() - start > timeout:
+			for k, v in games.items():
+				url = f"https://nylottery.ny.gov/draw-game?game={k}."
+				if v == False:
+					games[k] = f"Request failed. Retrieve results at {url}"
+			break
 
 def main():
 	games = {'numbers':False, 'win4':False}
-	print(format_sms(games))
+	format_sms(games, 30, 3600)
+	print('\n\n'.join([v for v in games.values()]))
 
 if __name__ == '__main__':
 	main()
