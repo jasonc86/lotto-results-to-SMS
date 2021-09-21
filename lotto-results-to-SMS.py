@@ -8,7 +8,7 @@ def main():
 	This was separated from dailylotto.py so I could test changes to that file
 	without sending text messages.'''
 	games = {'numbers':False, 'win4':False}
-	format_sms(games, 30)
+	format_sms(games, 30, 3600)
 	twilio_text('\n\n'.join([v for v in games.values()]))
 
 if __name__ == '__main__':
