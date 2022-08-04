@@ -9,7 +9,10 @@ def main():
 	without sending text messages.'''
 	games = {'numbers':False, 'win4':False}
 	format_sms(games, 30, 3600)
-	twilio_text('\n\n'.join([v for v in games.values()]))
+	msg = [v[0] for v in games.values()] # Contains winning numbers for each game
+	msg += [v[1] for v in games.values()][1:] # Shows draw period and date for results
+	msg += [v[2] for v in games.values()][1:] # Shows draw period and date for results
+	twilio_text('\n'.join(msg))
 
 if __name__ == '__main__':
 	main()

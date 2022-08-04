@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 '''Module for retrieving the NY lottery numbers and Win 4 game results'''
 import time
-import json
 import requests
 import sys
 from random_ua import rand_user_agent
@@ -16,14 +15,14 @@ def request_json(game):
 	except requests.HTTPError as e:
 		print(f'Status Code: {e.response.status_code}')
 		return False
-	return res.text
+	return res.json()
 
 def result_check(game):
 	'''Checks JSON data to see if results are available for latest game.
 	   if "results" key in draw_data exists it returns draw_data.'''
 	json_data = request_json(game)
 	if json_data:
-		draw_data = json.loads(json_data)['data']['draws'][1]
+		draw_data = json_data['data']['draws'][1]
 		if draw_data.get('results', ''):
 			return draw_data
 	else:
@@ -39,14 +38,14 @@ def json_to_str(draw_data):
 	draw_period = {1: "Midday", 2: "Evening"}
 	numbers = ''.join(results[0]['primary'])
 	result_date = time.strftime("%x", time.localtime((draw_data['resultDate']/1000)))
-	url = f"https://nylottery.ny.gov/draw-game?game={draw_data['gameName']}"
-	timestamp = f"Retrieved at {time.strftime('%X')} from\n{url}"
+	url = f"https://nylottery.ny.gov/draw-games"
+	timestamp = f"Retrieved at {time.strftime('%X')} from\n{url}."
 	results_info = (draw_period[draw_data['drawPeriod']],
 		draw_data['gameName'].title(), result_date, numbers, timestamp)
-	return "{0[0]} {0[1]} ({0[2]}): {0[3]}\n{0[4]}".format(results_info)
+	return "{0[1]}: {0[3]}".format(results_info), "{0[0]} {0[2]}".format(results_info), timestamp
 
 def format_sms(games, interval, timeout):
-	'''Records draw data for each game to send via SMS.'''
+	'''Checks to see if results for each game is available. If it isn't it waits and then checks the results for the other game.'''
 	start = time.time()
 	while not all([v for v in games.values()]):
 		for game in games.keys():
@@ -65,7 +64,8 @@ def format_sms(games, interval, timeout):
 def main():
 	games = {'numbers':False, 'win4':False}
 	format_sms(games, 30, 3600)
-	print('\n\n'.join([v for v in games.values()]))
+	print('\n'.join([v[0] for v in games.values()]+[v[1] for v in games.values()][1:]+[v[2] for v in games.values()][1:]))
+	#print([v for v in games.values()])
 
 if __name__ == '__main__':
 	main()
