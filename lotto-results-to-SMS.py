@@ -11,7 +11,7 @@ def main():
 	format_sms(games, 30, 3600)
 	msg = [v[0] for v in games.values()] # Contains winning numbers for each game
 	msg += [v[1] for v in games.values()][1:] # Shows draw period and date for results
-	msg += [v[2] for v in games.values()][1:] # Shows draw period and date for results
+	#msg += [v[2] for v in games.values()][1:] # Shows draw period and date for results
 	twilio_text('\n'.join(msg))
 
 if __name__ == '__main__':

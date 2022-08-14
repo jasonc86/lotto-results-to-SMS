@@ -38,11 +38,9 @@ def json_to_str(draw_data):
 	draw_period = {1: "Midday", 2: "Evening"}
 	numbers = ''.join(results[0]['primary'])
 	result_date = time.strftime("%x", time.localtime((draw_data['resultDate']/1000)))
-	url = f"https://nylottery.ny.gov/draw-games"
-	timestamp = f"Retrieved at {time.strftime('%X')} from\n{url}."
 	results_info = (draw_period[draw_data['drawPeriod']],
-		draw_data['gameName'].title(), result_date, numbers, timestamp)
-	return "{0[1]}: {0[3]}".format(results_info), "{0[0]} {0[2]}".format(results_info), timestamp
+		draw_data['gameName'].title(), result_date, numbers)
+	return "{0[1]}: {0[3]}".format(results_info), "{0[0]} {0[2]}".format(results_info)
 
 def format_sms(games, interval, timeout):
 	'''Checks to see if results for each game is available. If it isn't it waits and then checks the results for the other game.'''
@@ -64,7 +62,7 @@ def format_sms(games, interval, timeout):
 def main():
 	games = {'numbers':False, 'win4':False}
 	format_sms(games, 30, 3600)
-	print('\n'.join([v[0] for v in games.values()]+[v[1] for v in games.values()][1:]+[v[2] for v in games.values()][1:]))
+	print('\n'.join([v[0] for v in games.values()]+[v[1] for v in games.values()][1:]))
 	#print([v for v in games.values()])
 
 if __name__ == '__main__':
