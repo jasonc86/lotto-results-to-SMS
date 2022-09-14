@@ -24,8 +24,10 @@ class dailyLotto:
 		'''Sets result string to error message'''
 		self.results = self.err_msg
 		
-	def get_data(self):
-		'''requests JSON data from url and returns results'''
+	def get_data(self, sep):
+		'''requests JSON data from url and returns results.
+		argument 'sep' added for other games which have 
+		one and two digit numbers in the ['results'][0]['primary'] list'''
 		for x in range(4):
 			try:
 				res = requests.get(self.json_url, timeout=60)
@@ -33,7 +35,7 @@ class dailyLotto:
 				draw_data = self.json_data['data']['draws'][1]
 				self.draw_period = self.draw_dict.get(draw_data['drawPeriod'], '')
 				self.resDate = time.localtime(draw_data['resultDate']//1000)
-				self.results = ''.join(draw_data['results'][0]['primary'])
+				self.results = sep.join(draw_data['results'][0]['primary'])
 				break
 			except Exception:
 				time.sleep(164) 
@@ -48,10 +50,10 @@ class dailyLotto:
 
 def sms_from_data():
 	msg = ''
-	games = ('numbers', 'win4')
-	for game in games:
+	games = (('numbers',''), ('win4',''))
+	for game, sep in games:
 		dl = dailyLotto(game)
-		msg += dl.get_data()
+		msg += dl.get_data(sep)
 	msg += dl.get_draw()
 	return msg
 
