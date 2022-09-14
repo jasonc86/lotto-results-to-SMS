@@ -15,12 +15,13 @@ class dailyLotto:
 		self.json_data = {}
 		self.draw_period = ''
 		self.results = ''
+		self.resDate = '' 
 		# Error message if the program fails to get desired data
 		err_url = f"https://nylottery.ny.gov/draw-game?game={self.game_name}."
 		self.err_msg = f'Data unavailable.\nCheck results at\n{err_url}'
 	
 	def send_err(self):
-		'''Sets result to error message'''
+		'''Sets result string to error message'''
 		self.results = self.err_msg
 		
 	def get_data(self):
@@ -31,6 +32,7 @@ class dailyLotto:
 				self.json_data = res.json()
 				draw_data = self.json_data['data']['draws'][1]
 				self.draw_period = self.draw_dict.get(draw_data['drawPeriod'], '')
+				self.resDate = time.localtime(draw_data['resultDate']//1000)
 				self.results = ''.join(draw_data['results'][0]['primary'])
 				break
 			except Exception:
@@ -41,7 +43,8 @@ class dailyLotto:
 		return f"{self.game_name.title()}: {self.results}\n"
 
 	def get_draw(self):
-		return f"{self.draw_period} {time.strftime('%x')}"
+		'''generates timestamp with result date and draw_period'''
+		return f"{self.draw_period} {time.strftime('%x', self.resDate)}"
 
 def sms_from_data():
 	msg = ''
